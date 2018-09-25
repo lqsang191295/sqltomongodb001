@@ -1,0 +1,18 @@
+2018-09-25 15:43:57 - Starting C:\Program Files\nodejs\node.exe  --harmony E:\dddddddddddddddddddddddddddddddddddd\sqltomongodb001\server\node_modules\node-windows\lib\wrapper.js --file E:\dddddddddddddddddddddddddddddddddddd\sqltomongodb001\server\services.js --log "hcs_services_async_sql_mongo wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2018-09-25 15:43:57 - Started 9288
+2018-09-25 15:45:40 - Stopping hcs_services_async_sql_mongo.exe
+2018-09-25 15:45:40 - ProcessKill 9288
+2018-09-25 15:45:40 - Found child process: 13960 Name: conhost.exe
+2018-09-25 15:45:40 - Found child process: 7764 Name: node.exe
+2018-09-25 15:45:40 - Stopping process 13960
+2018-09-25 15:45:40 - Send SIGINT 13960
+2018-09-25 15:45:40 - SIGINT to 13960 failed - Killing as fallback
+2018-09-25 15:45:40 - Stopping process 7764
+2018-09-25 15:45:40 - Send SIGINT 7764
+2018-09-25 15:45:40 - SIGINT to 7764 failed - Killing as fallback
+2018-09-25 15:45:40 - Stopping process 9288
+2018-09-25 15:45:40 - Send SIGINT 9288
+2018-09-25 15:45:40 - SIGINT to 9288 failed - Killing as fallback
+2018-09-25 15:45:40 - Finished hcs_services_async_sql_mongo.exe
+2018-09-25 15:46:07 - Starting C:\Program Files\nodejs\node.exe  --harmony E:\dddddddddddddddddddddddddddddddddddd\sqltomongodb001\server\node_modules\node-windows\lib\wrapper.js --file E:\dddddddddddddddddddddddddddddddddddd\sqltomongodb001\server\services.js --log "hcs_services_async_sql_mongo wrapper" --grow 0.25 --wait 1 --maxrestarts 3 --abortonerror n --stopparentfirst undefined
+2018-09-25 15:46:07 - Started 1736

@@ -2,8 +2,9 @@ const express = require("express");
 const jsonParer = require("body-parser").json();
 const app = express();
 const fs = require('fs');
-
-const cors = require('cors')
+const cors = require('cors');
+var Service = require('node-windows').Service;
+var path = require("path");
 const corsOptions = {
   origin: 'http://localhost:4200',
   optionsSuccessStatus: 200
@@ -85,47 +86,30 @@ app.post("/writeFileQuery", jsonParer, (req, res) => {
 })
 
 app.post("/runServices", jsonParer, (req, res) => {
-    console.log(55677888);
-    const sql_controllers = require('./libs/sql_controller');
-    const mongo_controllers = require('./libs/mongo_controller');
-    /* Lấy connection của SQL */
-    var dataSQL = sql_controllers.getStringSQL();
-    /* Gán connection */
-    var conn = dataSQL.conSQL;
-    var reqConn = dataSQL.reqCon;
-    /* Async Data from SQL to Mongodb */
-    var arrQuery = [
-    ];
-    // 
-    var calbackAfterGetData = (result, arrQuery) => {
-        /*Lấy connection của Mongodb*/
-        var dataConfigMongo = mongo_controllers.getStringMongo();
-        //
-        mongo_controllers.insertOneData(dataConfigMongo.connection, dataConfigMongo.database, 
-            arrQuery, result);
-    }
-    //
-    var getArrayQuery = (conn, reqConn, callback) => {
-        fs.readFile("libs/writeFileQuery.json", 'utf8', function(err, data) {
-            if(err) {
-                res.send(err)
-                return ;
-            }
-            if(callback) callback(conn, reqConn, data ? JSON.parse(data) : [], calbackAfterGetData)
-        }); 
-    }
-    //
-    conn.close();
-    conn.connect(function (err) {
-        console.log(123123, err);
-        if(err) {
-            return;
-        };
-        setInterval(() => {
-            getArrayQuery(conn, reqConn, sql_controllers.execSQL);
-        }, 1000);
-    })
+    var svc = new Service({
+        name: 'hcs_services_async_sql_mongo',
+        description: 'Hcs đồng bộ dữ liệu từ sql sang mongodb',
+        script: path.join(__dirname, "services.js")
+    });
+    svc.on('install', function () {
+        svc.start();
+    });
+    svc.install();
+})
 
+app.post("/uninstallServices", jsonParer, (req, res) => {
+    console.log(123);
+    var svc = new Service({
+        name: 'hcs_services_async_sql_mongo',
+        script: path.join(__dirname, "services.js")
+    });
+    console.log(7888);
+    // Listen for the "uninstall" event so we know when it's done.
+    svc.on('uninstall', function () {
+        console.log('Uninstall complete.');
+        console.log('The service exists: ', svc.exists);
+    });
+    console.log(6666);
 })
 
 app.use(function (req, res, next) {
