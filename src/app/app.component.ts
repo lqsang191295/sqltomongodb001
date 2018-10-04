@@ -91,7 +91,13 @@ export class AppComponent {
 
 
   dataQuery = {
-    
+    dataMapField: [
+      {
+        filed_from: null,
+        filed_to: null,
+        primary_key: false
+      }
+    ]
   }
 
   readDataQuery () {
@@ -109,19 +115,36 @@ export class AppComponent {
   saveDataQuery (){
     const url = "http://localhost:3000/writeFileQuery";
     const headers = new Headers({ 'Content-Type': 'application/json' });
-    console.log(8888, this.dataQuery);
-    if(this.dataQuery['tb_primary_key']){
-      this.dataQuery['tb_primary_key'] = JSON.parse(this.dataQuery['tb_primary_key']);
-    }
-    if(this.dataQuery['tb_map_filed']){
-      this.dataQuery['tb_map_filed'] = JSON.parse(this.dataQuery['tb_map_filed']);
-    }
+    
     const body = JSON.stringify({data: this.dataQuery});
     this.http.post(url, body, {headers})
     .toPromise()
     .then(res => {
       this.readDataQuery();
     })
+  }
+
+  addMapField(){
+    console.log(this.dataQuery.dataMapField)
+    this.dataQuery.dataMapField.push({
+      filed_from: null,
+      filed_to: null,
+      primary_key: false
+    });
+  }
+
+  delMapField(){
+    if(this.dataQuery.dataMapField.length > 1){
+      this.dataQuery.dataMapField.pop();
+    }
+  }
+
+  editData(item){
+
+  }
+
+  deleteData(item){
+    
   }
 
 }

@@ -98,7 +98,7 @@ app.post("/runServices", jsonParer, (req, res) => {
 })
 
 app.post("/uninstallServices", jsonParer, (req, res) => {
-    console.log(123);
+    console.log(123, path.join(__dirname, "services.js"));
     var svc = new Service({
         name: 'hcs_services_async_sql_mongo',
         script: path.join(__dirname, "services.js")

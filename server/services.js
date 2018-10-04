@@ -20,6 +20,8 @@ var calbackAfterGetData = (result, arrQuery) => {
 //
 var getArrayQuery = (conn, reqConn, callback) => {
     fs.readFile("libs/writeFileQuery.json", 'utf8', function(err, data) {
+	console.log(123);
+
         if(err) {
             res.send(err)
             return ;

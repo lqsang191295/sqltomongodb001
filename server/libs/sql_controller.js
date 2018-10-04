@@ -36,7 +36,17 @@ var getConectionSql = (dbConfig, callback) => {
 
 var execSQL = (conn, reqCon, arrQuery, callback) => {
     function run(qr, callback){
-        reqCon.query(qr["tb_query"], (err, recordset) => {
+        var dataMapField = qr["dataMapField"];
+        var keys = "";
+        if(dataMapField.length > 0){
+            dataMapField.forEach(element => {
+                return keys += element["filed_from"] + ", ";
+            });
+        }
+        keys = keys.slice(0, -2);
+        var tb_query = "Select " + keys + " from " + qr["from_table"];
+        console.log(11111, tb_query);
+        reqCon.query(tb_query, (err, recordset) => {
             if(callback) {
                 callback(recordset.recordset, qr);
             }

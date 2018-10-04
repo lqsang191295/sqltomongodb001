@@ -22,21 +22,19 @@ var cnn = (dbConfig, database, callback) => {
 
 var mapingData = (db, arrQuery, dataObj, callback) => {
 	var val = {};
-
-	arrQuery["tb_map_filed"].forEach((v) => {
-		if(v.hasOwnProperty("type")){
-			var keys = Object.keys(v);
-			var value = Object.values(v);
-			console.log(keys, value);
-			keys.forEach((k, i) => {
-				if(k != "type"){
-					val[value[i]] = dataObj[k].slice(1).slice(0, -1).split("$");
-				}
-			})
+	arrQuery["dataMapField"].forEach((v) => {
+		if(v["filed_from"] == "LevelCode"){
+			var keys = v["filed_from"];
+			var value = v["filed_to"];
+			if(dataObj[keys])
+				val[value] = JSON.parse(JSON.stringify(dataObj[keys])).slice(1).slice(0, -1).split("$");
+			else
+				val[value] = null; 
 		} else {
-			var keys = Object.keys(v);
-			var value = Object.values(v);
-			val[value] = dataObj[keys];
+			var keys = v["filed_from"];
+			var value = v["filed_to"];
+			console.log(keys + "======" + JSON.parse(JSON.stringify(dataObj[keys])));
+			val[value] = JSON.parse(JSON.stringify(dataObj[keys]));
 		}
 	})
 
@@ -47,14 +45,15 @@ var checkExitsData = (db, arrQuery, dataObj, callback) => {
 	dataObj.forEach((val) => {
 		//
 		var where = {};
-		arrQuery["tb_primary_key"].forEach((data) => {
-			var keys = Object.keys(data);
-			var value = Object.values(data);
-			where[value] = val[keys];
+		arrQuery["dataMapField"].forEach((data) => {
+			if(data["primary_key"]){
+				var keys = data["filed_from"];
+				var value = data["filed_to"];
+				where[value] = val[keys];
+			}
 		})
-		console.log("where", where);
 		//
-		db.collection(arrQuery["tb_name"]).findOne(where, (err, result) => {
+		db.collection(arrQuery["to_table"]).findOne(where, (err, result) => {
 			if(err){
 				return;
 			}
@@ -69,7 +68,7 @@ var insertOneData = (dbConfig, database, arrQuery, dataObj, callback) => {
 	cnn(dbConfig, database, (err, db) => {
 		if(err) return;
 		checkExitsData(db, arrQuery, dataObj, (db, arrQuery, dataObj) => {
-			db.collection(arrQuery["tb_name"]).insert(dataObj, function(err, res) {
+			db.collection(arrQuery["to_table"]).insert(dataObj, function(err, res) {
 			    if (err) { 
 					console.log(err);
 					return;		    	

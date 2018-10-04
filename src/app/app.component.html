@@ -62,8 +62,10 @@
     <div class="tab-pane fade" id="services" role="tabpanel" aria-labelledby="profile-tab">
         <div class="pull-right" style="padding: 10px 0;" data-toggle="modal" data-target="#exampleModal">
           <button type="button" class="btn btn-outline-secondary">Add</button>
-          <button type="button" class="btn btn-outline-secondary" style="margin-left: 10px;">Install Services</button>
-          <button type="button" class="btn btn-outline-secondary" style="margin-left: 10px;">UnInstall Services</button>
+        </div>
+        <div style="padding: 10px 0;">
+            <button type="button" class="btn btn-outline-secondary">Install Services</button>
+            <button type="button" class="btn btn-outline-secondary" style="margin-left: 10px;">UnInstall Services</button>
         </div>
         <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -76,33 +78,33 @@
               </div>
               <div class="modal-body">
                   <form>
-
                     <div class="form-row">
                       <div class="col">
                         <label for="exampleFormControlInput1">From SQL</label>
-                        <input type="email" class="form-control" [(ngModel)]="dataQuery.tb_query"
+                        <input type="email" class="form-control" [(ngModel)]="dataQuery.from_table"
                           placeholder="" name="tb_query">
                       </div>
                       <div class="col">
                         <label for="exampleFormControlInput1">To MongoDB</label>
-                        <input type="email" class="form-control" [(ngModel)]="dataQuery.tb_query"
+                        <input type="email" class="form-control" [(ngModel)]="dataQuery.to_table"
                           placeholder="" name="tb_query">
                       </div>
                     </div>
-                    <div class="form-row">
+                    <div class="form-row" *ngFor="let item of dataQuery.dataMapField; let idx = index">
                       <div class="form-group col-md-4">
                         <label for="exampleFormControlInput1">From Field</label>
-                        <input type="email" class="form-control" [(ngModel)]="dataQuery.tb_query"
-                          placeholder="" name="tb_query">
+                        <input type="email" class="form-control" [(ngModel)]="item.filed_from"
+                          placeholder="" name="filed_from{{idx}}">
                       </div>
                       <div class="form-group col-md-4">
                         <label for="exampleFormControlInput1">To Field</label>
-                        <input type="email" class="form-control" [(ngModel)]="dataQuery.tb_query"
-                          placeholder="" name="tb_query">
+                        <input type="email" class="form-control" [(ngModel)]="item.filed_to"
+                          placeholder="" name="filed_to{{idx}}">
                       </div>
                       <div class="form-group col-md-4" style="padding-top: 40px; text-align: right;">
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" id="gridCheck">
+                          <input class="form-check-input" type="checkbox" id="gridCheck"
+                            [(ngModel)]="item.primary_key" name="primary_key">
                           <label class="form-check-label" for="gridCheck">
                             Khóa chính
                           </label>
@@ -110,22 +112,22 @@
                       </div>
                     </div>
                     <div class="form-group">
-                      <label for="exampleFormControlInput1">Table name</label>
-                      <input type="email" class="form-control" placeholder="lv.functionlist"
-                        [(ngModel)]="dataQuery.tb_name" name="tb_name">
+                      <button
+                        (click)="addMapField()">Add</button>
+                      <button style="margin-left: 10px;" 
+                        (click)="delMapField()">Delete</button>
                     </div>
                     <div class="form-group">
-                      <label for="exampleFormControlTextarea1">Table Keys Map</label>
-                      <textarea class="form-control" placeholder="[{'demo': 'demo'}]" rows="3"
-                        [(ngModel)]="dataQuery.tb_map_filed" name="tb_map_filed"></textarea>
-                    </div>
-                    <div class="form-check">
-                      <input type="radio" class="form-check-input" [(ngModel)]="dataQuery.tb_run_f" 
-                        name="tb_run_f" [value]="1">
-                      <label class="form-check-label" for="exampleCheck1">Chạy trước</label>
-                      <input value="" type="radio" class="form-check-input" [(ngModel)]="dataQuery.tb_run_f" 
-                        name="tb_run_f" [value]="2">
-                      <label class="form-check-label" for="exampleCheck1">Chạy sau</label>
+                      <div class="form-check form-check-inline">
+                        <input type="radio" class="form-check-input" [(ngModel)]="dataQuery.tb_run_f" 
+                          name="tb_run_f" [value]="1">
+                        <label class="form-check-label" for="exampleCheck1">Chạy trước</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input value="" type="radio" class="form-check-input" [(ngModel)]="dataQuery.tb_run_f" 
+                          name="tb_run_f" [value]="2">
+                        <label class="form-check-label" for="exampleCheck1">Chạy sau</label>
+                      </div>
                     </div>
                   </form>
               </div>
@@ -140,21 +142,28 @@
           <thead>
             <tr>
               <th scope="col">#</th>
-              <th scope="col">Query</th>
-              <th scope="col">Primary key</th>
-              <th scope="col">Table name</th>
+              <th scope="col">From SQL</th>
+              <th scope="col">To MongoDB</th>
               <th scope="col">Key map</th>
               <th scope="col">Chạy trước</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of dataQueryTb; let idx = index">
               <th scope="row">{{idx}}</th>
-              <td>{{item.tb_query}}</td>
-              <td>{{item.tb_primary_key}}</td>
-              <td>{{item.tb_name}}</td>
-              <td>{{item.tb_map_filed}}</td>
+              <td>{{item.from_table}}</td>
+              <td>{{item.to_table}}</td>
+              <td>
+                <p *ngFor="let it of item.dataMapField;">
+                  {{it.filed_from}} => {{it.filed_to}} => {{it.primary_key}}
+                </p>
+              </td>
               <td>{{item.tb_run_f == 1 ? 'True': 'False'}}</td>
+              <td>
+                <button (click)="editData(idx, item)">Sửa</button>
+                <button (click)="deleteData(idx, item)" style="margin-left: 10px;">Xóa</button>
+              </td>
             </tr>
           </tbody>
         </table>
