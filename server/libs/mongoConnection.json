@@ -1,1 +1,1 @@
-{"connection":"mongodb://172.16.7.67:27017","database":"lms"}
+{"connection":"mongodb://localhost:27017","database":"lms"}

@@ -33,30 +33,39 @@ var getConectionSql = (dbConfig, callback) => {
     this.reqCon = reqConnection;
     return this;
 }
-
-var execSQL = (conn, reqCon, arrQuery, callback) => {
-    function run(qr, callback){
-        var dataMapField = qr["dataMapField"];
-        var keys = "";
-        if(dataMapField.length > 0){
-            dataMapField.forEach(element => {
-                return keys += element["filed_from"] + ", ";
+function execSQL (conn, reqCon, arrQuery, callback) {
+    return new Promise((resolve, reject) => {
+        function run(qr, callback){
+            console.log("Hihihi123123");
+            var dataMapField = qr["dataMapField"];
+            var keys = "";
+            if(dataMapField.length > 0){
+                dataMapField.forEach(element => {
+                    return keys += element["filed_from"] + ", ";
+                });
+            }
+            keys = keys.slice(0, -2);
+            var tb_query = "Select " + keys + " from " + qr["from_table"];
+            console.log("Hihihi12312444444");
+            reqCon.query(tb_query, (err, recordset) => {
+                console.log("Haaaaaaa", 444);
+                if(err){
+                    return;
+                }
+                if(callback) {
+                    callback(recordset.recordset, qr);
+                }
             });
         }
-        keys = keys.slice(0, -2);
-        var tb_query = "Select " + keys + " from " + qr["from_table"];
-        console.log(11111, tb_query);
-        reqCon.query(tb_query, (err, recordset) => {
-            if(callback) {
-                callback(recordset.recordset, qr);
-            }
-        });
-    }
 
-    for(var i = 0; i < arrQuery.length; i++){
-        var qr = arrQuery[i];
-        new run(qr, callback);
-    }      
+        for(var i = 0; i < arrQuery.length; i++){
+            xxx = i;
+            console.log("Hihihi", i);
+            var qr = arrQuery[i];
+            new run(qr, callback);
+            
+        }  
+    })    
 }
 
 module.exports = {

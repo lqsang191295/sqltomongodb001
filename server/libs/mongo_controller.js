@@ -1,5 +1,13 @@
 const MongoClient = require('mongodb').MongoClient;
 const fs = require('fs');
+var _client = null;
+
+// đóng connection của Mongodb
+
+var fnCloseConnMongodb = (db) => {
+	_client.close();
+	return;
+}
 
 var getStringMongo = (callback) => {
 	try {
@@ -15,8 +23,15 @@ var getStringMongo = (callback) => {
 }
 
 var cnn = (dbConfig, database, callback) => {
+	console.log("Connect to Mongodb");
 	MongoClient.connect(dbConfig, (err, client) => {
-		callback(err, client.db(database));
+		var db = client.db(database);
+		_client = client;
+		if(err) {
+			fnCloseConnMongodb(client);
+			return;
+		}
+		callback(err, db);
 	})
 }
 
@@ -33,7 +48,6 @@ var mapingData = (db, arrQuery, dataObj, callback) => {
 		} else {
 			var keys = v["filed_from"];
 			var value = v["filed_to"];
-			console.log(keys + "======" + JSON.parse(JSON.stringify(dataObj[keys])));
 			val[value] = JSON.parse(JSON.stringify(dataObj[keys]));
 		}
 	})
@@ -41,7 +55,8 @@ var mapingData = (db, arrQuery, dataObj, callback) => {
 	callback(db, arrQuery, val)
 }
 
-var checkExitsData = (db, arrQuery, dataObj, callback) => {
+var checkExitsData = (db, client, arrQuery, dataObj, callback) => {
+	console.log("checkExitsData");
 	dataObj.forEach((val) => {
 		//
 		var where = {};
@@ -54,25 +69,48 @@ var checkExitsData = (db, arrQuery, dataObj, callback) => {
 		})
 		//
 		db.collection(arrQuery["to_table"]).findOne(where, (err, result) => {
+			console.log("checkExitsData findone");
 			if(err){
+				fnCloseConnMongodb(db);
 				return;
 			}
 			if(!result){
 				mapingData(db, arrQuery, val, callback);
+			}else{
+				count_mongodb++;
 			}
 		})
 	})
+
+	var exec = (db) => {
+		console.log(count_mongodb, dataObj.length)
+
+		if(count_mongodb == dataObj.length){
+			fnCloseConnMongodb(db);
+			count++;
+		} else {
+			setTimeout(function(){
+				exec();
+			}, 100);
+		}
+	};
+	exec(db);
 }
 
 var insertOneData = (dbConfig, database, arrQuery, dataObj, callback) => {
-	cnn(dbConfig, database, (err, db) => {
-		if(err) return;
-		checkExitsData(db, arrQuery, dataObj, (db, arrQuery, dataObj) => {
+	console.log("Insert One Data");
+	cnn(dbConfig, database, (err, db, client) => {
+		if(err) { 
+			return; 
+		}
+		checkExitsData(db, client, arrQuery, dataObj, (db, arrQuery, dataObj) => {
 			db.collection(arrQuery["to_table"]).insert(dataObj, function(err, res) {
 			    if (err) { 
-					console.log(err);
+					fnCloseConnMongodb(client);
 					return;		    	
-			    }
+				}
+				count_mongodb++;
+				console.log("Xong roi Mongodb");
 		    });
 		});
 	})

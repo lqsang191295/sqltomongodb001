@@ -11,6 +11,7 @@ var arrQuery = [
 ];
 // 
 var calbackAfterGetData = (result, arrQuery) => {
+    console.log("Gọi qua mongo db")
     /*Lấy connection của Mongodb*/
     var dataConfigMongo = mongo_controllers.getStringMongo();
     //
@@ -18,28 +19,66 @@ var calbackAfterGetData = (result, arrQuery) => {
         arrQuery, result);
 }
 //
-var getArrayQuery = (conn, reqConn, callback) => {
-    fs.readFile("libs/writeFileQuery.json", 'utf8', function(err, data) {
-	console.log(123);
-
-        if(err) {
-            res.send(err)
-            return ;
-        }
-        if(callback) callback(conn, reqConn, data ? JSON.parse(data) : [], calbackAfterGetData)
-    }); 
+var i = 0;
+function getArrayQuery (conn, reqConn, callback, i) {
+    i++;
+    console.log("Start Services", i);
+    return new Promise((resolve, reject) => {
+        fs.readFile("libs/writeFileQuery.json", 'utf8', function(err, data) {
+            if(err) {
+                res.send(err)
+                return ;
+            }
+            console.log("Data Files", i);
+            if(callback) {
+                Promise.all([
+                    (() => {
+                        callback(
+                            conn, 
+                            reqConn, 
+                            data ? JSON.parse(data) : [], 
+                            calbackAfterGetData, 
+                            () => {
+                                getArrayQuery(conn, reqConn, callback, i);
+                            })
+                        })()
+                ]).then(function(values) {
+                    //setTimeout(function (){
+                    //});
+                })
+            }
+        }); 
+    });
+    /*return new Promise((resolve, reject) => {
+        Promise.all([
+            (() => {
+                fs.readFile("libs/writeFileQuery.json", 'utf8', function(err, data) {
+                    if(err) {
+                        res.send(err)
+                        return ;
+                    }
+                    console.log("Data Files");
+                    if(callback) callback(conn, reqConn, data ? JSON.parse(data) : [], calbackAfterGetData)
+                }); 
+            })()
+        ]).then(function(values) {
+            console.log("End Services");
+            setTimeout(function(){
+                getArrayQuery(conn, reqConn, callback);
+            }, 1000);
+        });
+    });*/
+    
 }
 //
-var runServices = (callback) => {
+
+function runServices (callback) {
     conn.close();
-    conn.connect(function (err) {
-        console.log(123123, err);
+    conn.connect(async function (err) {
         if(err) {
             return;
         };
-        setInterval(() => {
-            getArrayQuery(conn, reqConn, sql_controllers.execSQL);
-        }, 500);
+        await getArrayQuery(conn, reqConn, sql_controllers.execSQL, i);
     })
 }
 //
